@@ -76,7 +76,8 @@ function console_log($data)
 function Connect($config) // Функция подключения к БД
 {
   // print_r($config);
-    $connection = new mysqli($config["hostname"].$config["port"], $config["username"], $config["password"]);
+    // $connection = new mysqli($config["hostname"].$config["port"], $config["username"], $config["password"]);
+    $connection = new mysqli("localhost:3306", "root", "root_pass123!");
     if ($connection->connect_errno) {
         die("Unable to connect to MySQL server:".$connection->connect_errno.$connection->connect_error);
     }
