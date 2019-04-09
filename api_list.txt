@@ -1,0 +1,26 @@
+pkb-calc.pa.infobox.ru/sql.php
+Параметры передаются методом POST
+
+Получить все события
+Запрос:
+type = GetEvents
+
+Ответ:
+json object [{"id":"","data":"","name"}]
+
+Добавить событие
+Запрос:
+type = AddEvents
+datee = Дата
+name = Название
+
+Ответ:
+null
+
+Удалить событие
+Запрос:
+type = DelEvents
+id = id удаляемого события
+
+Ответ:
+null

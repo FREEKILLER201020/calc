@@ -2,6 +2,12 @@
 require("class.php");
 $file  = file_get_contents(realpath(dirname(__FILE__))."/../config.json");
 $config = json_decode($file, true);
+
+// $_POST["type"]="GetPurchases";
+// $_POST["type"]="GetEvents";
+// $_POST["id"]=1;
+
+
 $date = $_POST["datee"];
 $idd = $_POST["id"];
 $name = $_POST["name"];
@@ -11,10 +17,9 @@ $member = $_POST["member"];
 
 $d=explode("/", $date);
 $date=$d[2]."-".$d[0]."-".$d[1];
-// $_POST["type"]="GetEvents";
 if ($_POST["type"]=="GetEvents") {
   $connection=Connect($config);
-  $query = "call calc.GetEvents();\n";
+  $query = "call {$config["base_database"]}.GetEvents();\n";
   $result = $connection->query($query);
   $events=array();
   mysqli_close($connection);
@@ -30,7 +35,7 @@ if ($_POST["type"]=="GetEvents") {
 
 if ($_POST["type"]=="AddEvents") {
   $connection=Connect($config);
-  $query = "call calc.AddEvent(\"$date\",\"$name\");\n";
+  $query = "call {$config["base_database"]}.AddEvent(\"$date\",\"$name\");\n";
   $result = $connection->query($query);
   $events=array();
   mysqli_close($connection);
@@ -38,7 +43,7 @@ if ($_POST["type"]=="AddEvents") {
 
 if ($_POST["type"]=="DelEvents") {
   $connection=Connect($config);
-  $query = "call calc.DelEvent($idd);\n";
+  $query = "call {$config["base_database"]}.DelEvent($idd);\n";
   $result = $connection->query($query);
   $events=array();
   mysqli_close($connection);
@@ -46,7 +51,7 @@ if ($_POST["type"]=="DelEvents") {
 
 if ($_POST["type"]=="GetPurchases") {
   $connection=Connect($config);
-  $query = "call calc.GetPurchases($idd);\n";
+  $query = "call {$config["base_database"]}.GetPurchases($idd);\n";
   $result = $connection->query($query);
   $purch=array();
   mysqli_close($connection);
