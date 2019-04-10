@@ -42,4 +42,54 @@ class Purchase
       $this->member=$m;
     }
 }
+
+class Member
+{
+    public $id;
+    public $name;
+
+    public function __construct($i,$n)
+    {
+      $this->id=$i;
+      $this->name=$n;
+    }
+}
+
+class Member_total
+{
+    public $id;
+    public $name;
+    public $total=0;
+    // public $cashback=0;
+
+    public function __construct($i,$n)
+    {
+      $this->id=$i;
+      $this->name=$n;
+    }
+}
+
+class Participation
+{
+    public $event_id;
+    public $member_id;
+
+    public function __construct($i,$i2)
+    {
+      $this->event_id=$i;
+      $this->member_id=$i2;
+    }
+}
+
+class Participation_add
+{
+    public $event_id;
+    public $member_id;
+
+    public function __construct($i,$i2)
+    {
+      $this->event_id=$i;
+      $this->member_id=$i2;
+    }
+}
  ?>

@@ -8,9 +8,23 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <meta charset="utf-8">
     <title></title>
+    <style media="screen">
+    table {
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+    }
+    </style>
   </head>
   <body>
     <p>Дата: <input type="text" id="datepicker"> Название <input type="text" id="name"> <input value="Добавить" onclick="Add()" type="button"></p>
+    <hr>
+    <p>Имя <input type="text" id="member_name"> <input value="Добавить" onclick="AddMember()" type="button"></p>
+    <div id="members">
+    </div>
+    <hr>
     <div id="main_parent">
     </div>
     <p id="showData"></p>
@@ -19,18 +33,11 @@
     $( function() {
     $( "#datepicker" ).datepicker();
   } );
-      function CreateTableFromJSON(myBooks) {
+      function CreateTableFromJSON(myBooks,del,tp) {
         if (myBooks.length==0){
           var table = document.createElement("table");
         return table;
       }
-        // console.log(myBooks);
-
-        // myBooks=JSON.parse('[{"id":"10","name":"test"},{"id":"15","name":"test2"}]');
-
-        // console.log(myBooks);
-        // myBooks=JSON.parse(myBooks);
-        // console.log(myBooks);
           var col = [];
           for (var i = 0; i < myBooks.length; i++) {
               for (var key in myBooks[i]) {
@@ -50,10 +57,33 @@
           for (var i = 0; i < myBooks.length; i++) {
             // console.log(myBooks[i]);
               tr = table.insertRow(-1);
-              for (var j = 0; j < col.length; j++) {
+              var len=col.length;
+              if (del==1){
+                len++;
+              }
+              console.log(len);
+              for (var j = 0; j < len; j++) {
+                if (j==0){
+                id=myBooks[i][col[j]];
+              }
+                // console.log(id);
                 // console.log(col[j]);
                   var tabCell = tr.insertCell(-1);
                   tabCell.innerHTML = myBooks[i][col[j]];
+                  if ((del==1)&&(j==len-1)){
+                    console.log("del");
+                    tabCell.innerHTML = "";
+                    var del_b = document.createElement("input");
+                    del_b.setAttribute("type", "button");
+                    del_b.setAttribute("value", "Удалить");
+                    if (tp=="purchase"){
+                      del_b.setAttribute("onclick", "DelPurchase("+id+")");
+                    }
+                    else if (tp=="member"){
+                      del_b.setAttribute("onclick", "DelMember("+id+")");
+                    }
+                    tabCell.appendChild(del_b);
+                  }
               }
           }
           // console.log(table);
@@ -69,10 +99,21 @@
           var header = table.createTHead();
           var tblBody = table.createTBody();
           var row = header.insertRow(0);
-          for (var i = 0; i < col.length; i++) {
+          var len=col.length;
+          if (del==1){
+            len++;
+          }
+          var id;
+          for (var i = 0; i < len; i++) {
+
+          console.log(id);
               var th = document.createElement("th");      // TABLE HEADER.
               th.innerHTML = col[i];
+              if ((del==1)&&(i==len-1)){
+                th.innerHTML = "";
+              }
               row.appendChild(th);
+
           }
           return table;
           // document.getElementById('table2').rows[0].cells;
@@ -178,13 +219,191 @@
         ;
         // return res;
       }
+      function DelMember (idd) {
+        console.log("Events add!");
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"DelMember",id: idd},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+      function DelPurchase (idd) {
+        console.log("Events add!");
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"DelPurchase",id: idd},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+      function GetMembers () {
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"GetMembers"},
+          async: false, // HERE
+          success:function(result){
+            res=result;
+          }
+        })
+        // Events();
+        ;
+        return res;
+      }
+
+      function AddMember () {
+        console.log("Events add!");
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"AddMember",name: $('#member_name').val()},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
+      function AddPurchase (index,event_id) {
+        console.log("Events add!");
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"AddPurchase",id: event_id,name: $('#name_inp'+index).val(),price: $('#price_inp'+index).val(),quantity: $('#quantity_inp'+index).val(),member:$('#select'+index).val()},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
+      function Participation_data (idd) {
+        console.log("Participation!");
+        var res="";
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"GetParticipations",id:idd},
+          async: false, // HERE
+          success:function(result){
+            console.log(result);
+            res=result;
+          }
+        });
+        return res;
+      }
+
+      function Participation_event (idd) {
+        console.log("Participation_event!");
+        var res="";
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"GetParticipations_event",id:idd},
+          async: false, // HERE
+          success:function(result){
+            console.log(result);
+            res=result;
+          }
+        });
+        return res;
+      }
+
+      function Total (idd) {
+        console.log("Total!");
+        var res="";
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"Total",id:idd},
+          async: false, // HERE
+          success:function(result){
+            console.log(result);
+            res=result;
+          }
+        });
+        return res;
+      }
+
+      function MoveIn (idd1,idd2) {
+        console.log("Events add!");
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"MoveIn",id: idd1,id2:idd2},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
+      function MoveOut (idd1,idd2) {
+        console.log("Events add!");
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"MoveOut",id: idd1,id2:idd2},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
       function Events(){
+        var member=GetMembers();
+        var member_div = document.getElementById("members");
+        member_div.innerHTML = "";
+        member_div.appendChild(CreateTableFromJSON(member,1,"member"));
         var divContainer = document.getElementById("main_parent");
         divContainer.innerHTML = "";
         var events=events_data();
         console.log(events);
+        var i=0;
         events.forEach(function(res) {
           console.log(res);
+          i++;
           var div = document.createElement("div");
           var par = document.createElement("p");
           var hr = document.createElement("hr");
@@ -200,11 +419,65 @@
           console.log(res['id']);
           var json=purchase_data(res['id']);
           console.log(json);
-          div.appendChild(CreateTableFromJSON(json));
+
+
+          var div2 = document.createElement("div");
+          var name_p = document.createElement("p");
+          name_p.innerText="Название";
+          var name_inp=document.createElement("input");
+          name_inp.setAttribute("id", "name_inp"+i);
+
+          var price_p = document.createElement("p");
+          price_p.innerText="Цена";
+          var price_inp=document.createElement("input");
+          price_inp.setAttribute("id", "price_inp"+i);
+
+          var quantity_p = document.createElement("p");
+          quantity_p.innerText="Количество";
+          var quantity_inp=document.createElement("input");
+          quantity_inp.setAttribute("id", "quantity_inp"+i);
+
+
+          var bt2 = document.createElement("input");
+
+          var select_p = document.createElement("p");
+          select_p.innerText="Участник";
+          var select = document.createElement("select");
+          select.setAttribute("id", "select"+i);
+          var options = Participation_event(res['id']);
+          console.log("Select!");
+          for(var n = 0; n < options.length; n++) {
+            var opt = options[n];
+            console.log(opt);
+            var el = document.createElement("option");
+            el.textContent = opt["name"];
+            el.value = opt["id"];
+            select.appendChild(el);
+          }
+          // var part=Participation_data(res['id']);
+
+
+          bt2.setAttribute("type", "button");
+          bt2.setAttribute("value", "Добавить");
+          bt2.setAttribute("onclick", "AddPurchase("+i+","+res['id']+")");
+          div2.appendChild(name_p);
+          div2.appendChild(name_inp);
+          div2.appendChild(price_p);
+          div2.appendChild(price_inp);
+          div2.appendChild(quantity_p);
+          div2.appendChild(quantity_inp);
+          div2.appendChild(select_p);
+          div2.appendChild(select);
+          div2.appendChild(bt2);
+          div.appendChild(div2);
+          div.appendChild(CreateTableFromJSON(Participation_data(res['id']),0));
+          div.appendChild(CreateTableFromJSON(json,1,"purchase"));
+          div.appendChild(CreateTableFromJSON(Total(res['id']),0));
           div.appendChild(hr);
           divContainer.appendChild(div);
         });
       }
+
       Events();
   </script>
 </html>

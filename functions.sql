@@ -67,6 +67,13 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE PROCEDURE GetMembers ()
+BEGIN
+Select * from Member order by name asc;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE PROCEDURE AddPurchase (in event_idd int,IN namme text(500), IN pricce float, in quantitty float,in memberr int)
 BEGIN
 DECLARE p_id integer;
@@ -80,6 +87,14 @@ DELIMITER $$
 CREATE PROCEDURE DelPurchase (in idd int)
 BEGIN
 delete from Purchase where id=idd;
+delete from Buy where purchase_id=idd;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE DelMember (in idd int)
+BEGIN
+delete from Member where id=idd;
 END$$
 DELIMITER ;
 
@@ -87,6 +102,49 @@ DELIMITER $$
 CREATE PROCEDURE AddParticipation (IN event_idd int, IN member_idd int)
 BEGIN
 INSERT INTO Participation (event_id,member_id) values (event_idd,member_idd);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE GetParticipations ()
+BEGIN
+select * from Participation;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE GetParticipationsIn (in event_idd int)
+BEGIN
+DECLARE v_finished INTEGER DEFAULT 0;
+DECLARE idd integer;
+-- declare cursor for employee email
+DEClARE ids_cursor CURSOR FOR
+SELECT DISTINCT member_id FROM Participation where event_id=event_idd;
+-- declare NOT FOUND handler
+DECLARE CONTINUE HANDLER
+FOR NOT FOUND SET v_finished = 1;
+CREATE TEMPORARY TABLE Member_t LIKE Member;
+OPEN ids_cursor;
+get_email: LOOP
+FETCH ids_cursor INTO idd;
+IF v_finished = 1 THEN
+LEAVE get_email;
+END IF;
+-- build email list
+INSERT into Member_t select * FROM Member where id=idd;
+END LOOP get_email;
+CLOSE ids_cursor;
+-- select orderr;
+-- select * from Players_t order by nick;
+select * from Member_t;
+DROP TEMPORARY TABLE Member_t;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE DellParticipation (IN event_idd int, IN member_idd int)
+BEGIN
+DELETE from Participation where event_id=event_idd and member_id=member_idd;
 END$$
 DELIMITER ;
 
