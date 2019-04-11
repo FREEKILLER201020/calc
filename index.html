@@ -293,7 +293,7 @@
           url:"sql.php", //the page containing php script
           type: "post", //request type,
           dataType: 'json',
-          data: {type:"AddPurchase",id: event_id,name: $('#name_inp'+index).val(),price: $('#price_inp'+index).val(),quantity: $('#quantity_inp'+index).val(),member:$('#select'+index).val()},
+          data: {type:"AddPurchase",id: event_id,name: $('#name_inp'+index).val(),price: Math.abs($('#price_inp'+index).val()),quantity: Math.abs($('#quantity_inp'+index).val()),member:$('#select'+index).val()},
           async: false, // HERE
           success:function(result){
             // res=result;

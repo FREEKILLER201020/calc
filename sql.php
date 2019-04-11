@@ -304,6 +304,9 @@ if ($_POST["type"]=="Total") {
       $member->total=$res[$member->id];
     }
   }
+  array_push($members2,new Member_total("-","Всего"));
+  $members2[count($members2)-1]->total=$summ;
+  // array_push($members2,new Purchase("-","Всего", "-", "-", $sum, "-"));
   echo json_encode($members2, JSON_UNESCAPED_UNICODE);
 }
 
