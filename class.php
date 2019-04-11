@@ -60,7 +60,7 @@ class Member_total
     public $id;
     public $name;
     public $total=0;
-    // public $cashback=0;
+    public $cashback=0;
 
     public function __construct($i,$n)
     {

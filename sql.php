@@ -5,7 +5,7 @@ $config = json_decode($file, true);
 
 // $_POST["type"]="AddPurchases";
 // $_POST["type"]="Total";
-// $_POST["id"]=4;
+// $_POST["id"]=3;
 // $_POST["name"]="1";
 // $_POST["price"]=1;
 // $_POST["quantity"]=1;
@@ -295,17 +295,22 @@ if ($_POST["type"]=="Total") {
   }
   $res=array();
   $summ=0;
+  $one=0;
   for($i=0;$i<count($purch);$i++){
     $summ+=$purch[$i]->total;
     $res[$purch[$i]->member]+=$purch[$i]->total;
   }
+  $one=$summ/count($members2);
   foreach ($members2 as $member) {
-    if (isset($res[$member->id])){
-      $member->total=$res[$member->id];
+    if (!isset($res[$member->id])){
+      $res[$member->id]=0;
     }
+      $member->total=$res[$member->id];
+      $member->cashback=$member->total-$one;
   }
   array_push($members2,new Member_total("-","Всего"));
   $members2[count($members2)-1]->total=$summ;
+  $members2[count($members2)-1]->cashback=$one;
   // array_push($members2,new Purchase("-","Всего", "-", "-", $sum, "-"));
   echo json_encode($members2, JSON_UNESCAPED_UNICODE);
 }
