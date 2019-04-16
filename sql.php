@@ -3,7 +3,7 @@ require("class.php");
 $file  = file_get_contents(realpath(dirname(__FILE__))."/../config.json");
 $config = json_decode($file, true);
 
-// $_POST["type"]="AddPurchases";
+// $_POST["type"]="GetPurchases";
 // $_POST["type"]="Total";
 // $_POST["id"]=3;
 // $_POST["name"]="1";
@@ -55,7 +55,38 @@ if ($_POST["type"]=="DelEvents") {
   mysqli_close($connection);
 }
 
+if ($_POST["type"]=="Eat") {
+  $connection=Connect($config);
+  $query = "call {$config["base_database"]}.AddEat_drink($idd,$idd2);\n";
+  $result = $connection->query($query);
+  $events=array();
+  mysqli_close($connection);
+}
+
+if ($_POST["type"]=="UnEat") {
+  $connection=Connect($config);
+  $query = "call {$config["base_database"]}.DelEat_drink($idd,$idd2);\n";
+  $result = $connection->query($query);
+  $events=array();
+  mysqli_close($connection);
+}
+
 if ($_POST["type"]=="GetPurchases") {
+  $connection=Connect($config);
+  $query = "call {$config["base_database"]}.GetParticipations();\n";
+  $result = $connection->query($query);
+  $array=array();
+  mysqli_close($connection);
+  if ($result->num_rows > 0) {
+      while ($row = $result->fetch_assoc()) {
+          // print_r($row);
+          if ($row["event_id"]==$idd){
+            $tmp= new Participation($row["event_id"],$row["member_id"]);
+            array_push($array, $tmp);
+          }
+      }
+  }
+  // print_r($array);
   $connection=Connect($config);
   $query = "call {$config["base_database"]}.GetPurchases($idd);\n";
   $result = $connection->query($query);
@@ -64,7 +95,42 @@ if ($_POST["type"]=="GetPurchases") {
   if ($result->num_rows > 0) {
       while ($row = $result->fetch_assoc()) {
           // print_r($row);
-          $tmp= new Purchase($row["id"],$row["name"], $row["price"], $row["quantity"], $row["total"], $row["buyer"]);
+          $tmp= new Purchase($row["id"],$row["name"], $row["price"], $row["quantity"], $row["total"], WhoIs($row["buyer"],$config));
+          $connection2=Connect($config);
+          $query2 = "call {$config["base_database"]}.GetEat_drink({$row["id"]});\n";
+          $result2 = $connection2->query($query2);
+          $eat=array();
+          mysqli_close($connection2);
+          if ($result2->num_rows > 0) {
+              while ($row2 = $result2->fetch_assoc()) {
+                  // print_r($row);
+                  // if ($row["event_id"]==$idd){
+                    $eat2= new Eat($row2["purchase_id"],$row2["member_id"]);
+                    array_push($eat, $eat2);
+                  // }
+              }
+          }
+          // print_r($eat);
+          foreach ($array as $arr) {
+            $was=0;
+            foreach ($eat as $eat1) {
+              // print_r($eat1);
+              if ($arr->member_id==$eat1->member){
+                $was=1;
+              }
+            }
+            $a=WhoIs($arr->member_id,$config);
+            $a2=$arr->member_id;
+            if ($was==1){
+              $tmp->$a="<input type=\"checkbox\" id=\"chechbox+{$row["id"]}+$a2\" checked=\"1\">";
+              $tmp->$a.="<input type=\"button\" value=\"Не ел\" onclick=\"UnEat({$row["id"]},$a2)\">";
+
+            }
+            else{
+              $tmp->$a="<input type=\"checkbox\" id=\"chechbox+{$row["id"]}+$a2\">";
+              $tmp->$a.="<input type=\"button\" value=\"Ел\" onclick=\"Eat({$row["id"]},$a2)\">";
+            }
+          }
           array_push($purch, $tmp);
       }
   }
@@ -181,7 +247,7 @@ if ($_POST["type"]=="GetParticipations") {
       }
     }
     if ($was==0){
-      array_push($res,new Participation_add($member->name,"<input type=\"button\" value=\"Участвовать\" onclick=\"MoveIn($idd,$member->id)\">"));
+      // array_push($res,new Participation_add($member->name,"<input type=\"button\" value=\"Участвовать\" onclick=\"MoveIn($idd,$member->id)\">"));
     }
     else{
       array_push($res,new Participation_add("<input type=\"button\" value=\"Выйти\" onclick=\"MoveOut($idd,$member->id)\">",$member->name));
@@ -248,7 +314,7 @@ if ($_POST["type"]=="Total") {
   if ($result->num_rows > 0) {
       while ($row = $result->fetch_assoc()) {
           // print_r($row);
-          $tmp= new Purchase($row["id"],$row["name"], $row["price"], $row["quantity"], $row["total"], $row["buyer"]);
+          $tmp= new Purchase($row["id"],$row["name"], $row["price"], $row["quantity"], $row["total"], WhoIs($row["buyer"],$config));
           array_push($purch, $tmp);
       }
   }
@@ -276,6 +342,20 @@ if ($_POST["type"]=="Total") {
           array_push($array, $tmp);
       }
   }
+  $connection2=Connect($config);
+  $query2 = "call {$config["base_database"]}.GetEat_drink_all();\n";
+  $result2 = $connection2->query($query2);
+  $eat=array();
+  mysqli_close($connection2);
+  if ($result2->num_rows > 0) {
+      while ($row2 = $result2->fetch_assoc()) {
+          // print_r($row);
+          // if ($row["event_id"]==$idd){
+            $tmp= new Eat($row2["purchase_id"],$row2["member_id"]);
+            array_push($eat, $tmp);
+          // }
+      }
+  }
   $members2=array();
   foreach ($members as $member) {
     $was=0;
@@ -293,26 +373,76 @@ if ($_POST["type"]=="Total") {
       array_push($members2,$member);
     }
   }
+  // print_r($eat);
+  // print_r($members2);
+  // print_r($purch);
+  // !!!
   $res=array();
+  $res2=array();
+  $total_eated=array();
   $summ=0;
   $one=0;
   for($i=0;$i<count($purch);$i++){
     $summ+=$purch[$i]->total;
     $res[$purch[$i]->member]+=$purch[$i]->total;
+    $res2[$purch[$i]->id]+=$purch[$i]->total;
   }
+  foreach ($eat as $peac) {
+    $total_eated[$peac->purch]++;
+  }
+  // print_r($total_eated);
+  // print_r($res);
+  // $eated
   $one=$summ/count($members2);
   foreach ($members2 as $member) {
     if (!isset($res[$member->id])){
       $res[$member->id]=0;
     }
-      $member->total=$res[$member->id];
-      $member->cashback=$member->total-$one;
+    $member->total=$res[$member->name];
+    foreach ($eat as $peac) {
+      $eated=0;
+      if ($peac->member==$member->id){
+        $eated=1;
+      }
+      // echo $eated.PHP_EOL;
+      if ($eated==1){
+        // print_r($peac);
+        // print_r($res);
+        // print_r($purch);
+        // print_r($total_eated);
+        $member->cashback-=$res2[$peac->purch]/$total_eated[$peac->purch];
+        // $member->cashback=$member->total-$one;
+      }
+    }
+    $member->cashback+=$member->total;
+
+    //   $member->total=$res[$member->id];
+    //   // $member->cashback=$member->total-$one;
   }
+  // !!!
   array_push($members2,new Member_total("-","Всего"));
   $members2[count($members2)-1]->total=$summ;
-  $members2[count($members2)-1]->cashback=$one;
+  $members2[count($members2)-1]->cashback="Avr spend: ".$one;
   // array_push($members2,new Purchase("-","Всего", "-", "-", $sum, "-"));
   echo json_encode($members2, JSON_UNESCAPED_UNICODE);
+}
+
+function WhoIs ($idd,$config) {
+  $connection=Connect($config);
+  $query = "call {$config["base_database"]}.WhoIs($idd);\n";
+  // echo $query;
+  $result = $connection->query($query);
+  // $purch=array();
+  mysqli_close($connection);
+  if ($result->num_rows > 0) {
+      while ($row = $result->fetch_assoc()) {
+          // print_r($row);
+          return $row["name"];
+          // $tmp= new Purchase($row["id"],$row["name"], $row["price"], $row["quantity"], $row["total"], $row["buyer"]);
+          // array_push($purch, $tmp);
+      }
+  }
+  // echo json_encode($purch, JSON_UNESCAPED_UNICODE);
 }
 
 function console_log($data)

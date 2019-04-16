@@ -55,6 +55,18 @@ class Member
     }
 }
 
+class Eat
+{
+    public $purch;
+    public $member;
+
+    public function __construct($i,$n)
+    {
+      $this->purch=$i;
+      $this->member=$n;
+    }
+}
+
 class Member_total
 {
     public $id;

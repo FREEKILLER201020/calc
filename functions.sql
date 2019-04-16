@@ -38,6 +38,16 @@ create table Buy
   REFERENCES Purchase(id)
   ON DELETE CASCADE);
 
+create table Eat_drink
+  ( purchase_id int,
+  member_id int,
+  FOREIGN KEY (purchase_id)
+  REFERENCES Purchase(id)
+  ON DELETE CASCADE,
+  FOREIGN KEY (member_id)
+  REFERENCES Member(id)
+  ON DELETE CASCADE);
+
 DELIMITER $$
 CREATE PROCEDURE AddEvent (IN datte date, IN namme text(500))
 BEGIN
@@ -63,6 +73,13 @@ DELIMITER $$
 CREATE PROCEDURE AddMember (IN namme text(500))
 BEGIN
 INSERT INTO Member (name) values (namme);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE WhoIs (IN idd int)
+BEGIN
+select * from Member where id=idd;
 END$$
 DELIMITER ;
 
@@ -180,6 +197,34 @@ CLOSE ids_cursor;
 -- select * from Players_t order by nick;
 select * from Purchase_t;
 DROP TEMPORARY TABLE Purchase_t;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE AddEat_drink (IN purchase_idd int, IN member_idd int)
+BEGIN
+INSERT INTO Eat_drink (purchase_id,member_id) values (purchase_idd,member_idd);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE GetEat_drink (IN purchase_idd int)
+BEGIN
+select * from  Eat_drink where purchase_id=purchase_idd;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE GetEat_drink_all ()
+BEGIN
+select * from  Eat_drink;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE DelEat_drink (IN purchase_idd int, IN member_idd int)
+BEGIN
+Delete from Eat_drink where purchase_id=purchase_idd and member_id=member_idd;
 END$$
 DELIMITER ;
 

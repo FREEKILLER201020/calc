@@ -286,6 +286,42 @@
         // return res;
       }
 
+      function Eat (idd1,idd2) {
+        console.log("Events add!");
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"Eat",id: idd1,id2:idd2},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
+      function UnEat (idd1,idd2) {
+        console.log("Events add!");
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"UnEat",id: idd1,id2:idd2},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
       function AddPurchase (index,event_id) {
         console.log("Events add!");
         var res;
@@ -362,7 +398,7 @@
           url:"sql.php", //the page containing php script
           type: "post", //request type,
           dataType: 'json',
-          data: {type:"MoveIn",id: idd1,id2:idd2},
+          data: {type:"MoveIn",id: idd1,id2:$('#select2'+idd2).val()},
           async: false, // HERE
           success:function(result){
             // res=result;
@@ -441,7 +477,7 @@
           var bt2 = document.createElement("input");
 
           var select_p = document.createElement("p");
-          select_p.innerText="Участник";
+          select_p.innerText="Покупатель";
           var select = document.createElement("select");
           select.setAttribute("id", "select"+i);
           var options = Participation_event(res['id']);
@@ -454,12 +490,46 @@
             el.value = opt["id"];
             select.appendChild(el);
           }
+
+          var parti=Participation_data(res['id']);
+          console.log("!!!!!!!!");
+          console.log(parti);
+          var members_in=[];
+          parti.forEach(function(element) {
+            // console.log(element);
+            members_in.push(element["member_id"]);
+          });
+          console.log(members_in);
+
+          var select_p2 = document.createElement("p");
+          select_p2.innerText="Участник";
+          var select2 = document.createElement("select");
+          select2.setAttribute("id", "select2"+i);
+          var options2 = GetMembers();
+          console.log("Select123!");
+          for(var n = 0; n < options2.length; n++) {
+            var opt2 = options2[n];
+            if (!members_in.includes(opt2["name"])){
+              console.log(opt2);
+              var el2 = document.createElement("option");
+              el2.textContent = opt2["name"];
+              el2.value = opt2["id"];
+              select2.appendChild(el2);
+            }
+          }
           // var part=Participation_data(res['id']);
 
 
           bt2.setAttribute("type", "button");
           bt2.setAttribute("value", "Добавить");
           bt2.setAttribute("onclick", "AddPurchase("+i+","+res['id']+")");
+          var bt3 = document.createElement("input");
+          bt3.setAttribute("type", "button");
+          bt3.setAttribute("value", "Добавить");
+          bt3.setAttribute("onclick", "MoveIn("+res['id']+","+i+")");
+          div2.appendChild(select_p2);
+          div2.appendChild(select2);
+          div2.appendChild(bt3);
           div2.appendChild(name_p);
           div2.appendChild(name_inp);
           div2.appendChild(price_p);
@@ -470,8 +540,10 @@
           div2.appendChild(select);
           div2.appendChild(bt2);
           div.appendChild(div2);
-          div.appendChild(CreateTableFromJSON(Participation_data(res['id']),0));
+          div.appendChild(CreateTableFromJSON(parti,0));
+          div.appendChild(document.createElement("br"));
           div.appendChild(CreateTableFromJSON(json,1,"purchase"));
+          div.appendChild(document.createElement("br"));
           div.appendChild(CreateTableFromJSON(Total(res['id']),0));
           div.appendChild(hr);
           divContainer.appendChild(div);
