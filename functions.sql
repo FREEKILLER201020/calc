@@ -10,6 +10,7 @@ create table Member
 create table Participation
   ( event_id int,
   member_id int,
+  payed int DEFAULT '0',
   FOREIGN KEY (event_id)
   REFERENCES Events(id)
   ON DELETE CASCADE,
@@ -119,6 +120,13 @@ DELIMITER $$
 CREATE PROCEDURE AddParticipation (IN event_idd int, IN member_idd int)
 BEGIN
 INSERT INTO Participation (event_id,member_id) values (event_idd,member_idd);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE SetPayed (IN event_idd int, IN member_idd int,in amm int)
+BEGIN
+Update Participation set payed=amm where event_id=event_idd and member_id=member_idd;
 END$$
 DELIMITER ;
 

@@ -427,6 +427,25 @@
         // return res;
       }
 
+      function Pay (idd1,idd2) {
+        console.log("Pay!");
+        console.log($('#pay_'+idd1+'_'+idd2).val());
+        var res;
+        $.ajax({
+          url:"sql.php", //the page containing php script
+          type: "post", //request type,
+          dataType: 'json',
+          data: {type:"SetPayed",id: idd1,id2:idd2,amm:$('#pay_'+idd1+'_'+idd2).val()},
+          async: false, // HERE
+          success:function(result){
+            // res=result;
+          }
+        })
+        Events();
+        ;
+        // return res;
+      }
+
       function Events(){
         var member=GetMembers();
         var member_div = document.getElementById("members");
@@ -462,16 +481,22 @@
           name_p.innerText="Название";
           var name_inp=document.createElement("input");
           name_inp.setAttribute("id", "name_inp"+i);
+          name_p.setAttribute("style", "display: inline;");
+          name_inp.setAttribute("style", "display: inline;");
 
           var price_p = document.createElement("p");
           price_p.innerText="Цена";
           var price_inp=document.createElement("input");
           price_inp.setAttribute("id", "price_inp"+i);
+          price_p.setAttribute("style", "display: inline;");
+          price_inp.setAttribute("style", "display: inline;");
 
           var quantity_p = document.createElement("p");
           quantity_p.innerText="Количество";
           var quantity_inp=document.createElement("input");
           quantity_inp.setAttribute("id", "quantity_inp"+i);
+          quantity_p.setAttribute("style", "display: inline;");
+          quantity_inp.setAttribute("style", "display: inline;");
 
 
           var bt2 = document.createElement("input");
@@ -480,6 +505,8 @@
           select_p.innerText="Покупатель";
           var select = document.createElement("select");
           select.setAttribute("id", "select"+i);
+          select_p.setAttribute("style", "display: inline;");
+          select.setAttribute("style", "display: inline;");
           var options = Participation_event(res['id']);
           console.log("Select!");
           for(var n = 0; n < options.length; n++) {
@@ -506,7 +533,10 @@
           var select2 = document.createElement("select");
           select2.setAttribute("id", "select2"+i);
           var options2 = GetMembers();
+          select_p2.setAttribute("style", "display: inline;");
+          select2.setAttribute("style", "display: inline;");
           console.log("Select123!");
+          var selected=0;
           for(var n = 0; n < options2.length; n++) {
             var opt2 = options2[n];
             if (!members_in.includes(opt2["name"])){
@@ -515,8 +545,12 @@
               el2.textContent = opt2["name"];
               el2.value = opt2["id"];
               select2.appendChild(el2);
+              selected++;
+              console.log(selected);
             }
           }
+          console.log("SELECT!");
+          console.log(selected);
           // var part=Participation_data(res['id']);
 
 
@@ -527,17 +561,25 @@
           bt3.setAttribute("type", "button");
           bt3.setAttribute("value", "Добавить");
           bt3.setAttribute("onclick", "MoveIn("+res['id']+","+i+")");
-          div2.appendChild(select_p2);
-          div2.appendChild(select2);
-          div2.appendChild(bt3);
+          if (selected>0) {
+            div2.appendChild(document.createElement("br"));
+            div2.appendChild(select_p2);
+            div2.appendChild(select2);
+            div2.appendChild(bt3);
+          }
+          div2.appendChild(document.createElement("br"));
           div2.appendChild(name_p);
           div2.appendChild(name_inp);
+          div2.appendChild(document.createElement("br"));
           div2.appendChild(price_p);
           div2.appendChild(price_inp);
+          div2.appendChild(document.createElement("br"));
           div2.appendChild(quantity_p);
           div2.appendChild(quantity_inp);
+          div2.appendChild(document.createElement("br"));
           div2.appendChild(select_p);
           div2.appendChild(select);
+          div2.appendChild(document.createElement("br"));
           div2.appendChild(bt2);
           div.appendChild(div2);
           div.appendChild(CreateTableFromJSON(parti,0));

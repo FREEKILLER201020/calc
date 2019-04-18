@@ -20,6 +20,7 @@ $name = $_POST["name"];
 $price = $_POST["price"];
 $quantity = $_POST["quantity"];
 $member = $_POST["member"];
+$amm = $_POST["amm"];
 
 $d=explode("/", $date);
 $date=$d[2]."-".$d[0]."-".$d[1];
@@ -305,6 +306,23 @@ if ($_POST["type"]=="GetParticipations_event") {
   echo json_encode($array, JSON_UNESCAPED_UNICODE);
 }
 
+if ($_POST["type"]=="SetPayed") {
+  $connection=Connect($config);
+  $query = "call {$config["base_database"]}.SetPayed($idd,$idd2,$amm);\n";
+  // echo $query;
+  $result = $connection->query($query);
+  // $purch=array();
+  mysqli_close($connection);
+  // if ($result->num_rows > 0) {
+  //     while ($row = $result->fetch_assoc()) {
+  //         // print_r($row);
+  //         return $row["name"];
+  //         // $tmp= new Purchase($row["id"],$row["name"], $row["price"], $row["quantity"], $row["total"], $row["buyer"]);
+  //         // array_push($purch, $tmp);
+  //     }
+  // }
+}
+
 if ($_POST["type"]=="Total") {
   $connection=Connect($config);
   $query = "call {$config["base_database"]}.GetPurchases($idd);\n";
@@ -339,6 +357,7 @@ if ($_POST["type"]=="Total") {
       while ($row = $result->fetch_assoc()) {
           // print_r($row);
           $tmp= new Participation($row["event_id"],$row["member_id"]);
+          $tmp->payed=$row["payed"];
           array_push($array, $tmp);
       }
   }
@@ -414,6 +433,14 @@ if ($_POST["type"]=="Total") {
         // $member->cashback=$member->total-$one;
       }
     }
+    foreach ($array as $arr) {
+      if ($member->id==$arr->member_id){
+        $text="<input type=\"text\" value=\"$arr->payed\" id=\"pay_".$idd."_".$member->id."\">";
+        $button="<input type=\"button\" value=\"Pay\" onclick=\"Pay($idd,$member->id)\">";
+        // $member->payed=$arr->payed;
+        $member->payed=$text.$button;
+      }
+    }
     $member->cashback+=$member->total;
 
     //   $member->total=$res[$member->id];
@@ -444,6 +471,7 @@ function WhoIs ($idd,$config) {
   }
   // echo json_encode($purch, JSON_UNESCAPED_UNICODE);
 }
+
 
 function console_log($data)
 {

@@ -85,6 +85,7 @@ class Participation
 {
     public $event_id;
     public $member_id;
+    public $payed;
 
     public function __construct($i,$i2)
     {
