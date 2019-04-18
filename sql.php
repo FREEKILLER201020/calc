@@ -401,6 +401,7 @@ if ($_POST["type"]=="Total") {
   $total_eated=array();
   $summ=0;
   $one=0;
+  $total_payed=0;
   for($i=0;$i<count($purch);$i++){
     $summ+=$purch[$i]->total;
     $res[$purch[$i]->member]+=$purch[$i]->total;
@@ -435,6 +436,7 @@ if ($_POST["type"]=="Total") {
     }
     foreach ($array as $arr) {
       if (($member->id==$arr->member_id)&&($idd==$arr->event_id)){
+        $total_payed+=$arr->payed;
         $text="<input type=\"text\" value=\"$arr->payed\" id=\"pay_".$idd."_".$member->id."\">";
         $button="<input type=\"button\" value=\"Pay\" onclick=\"Pay($idd,$member->id)\">";
         // $member->payed=$arr->payed;
@@ -450,6 +452,7 @@ if ($_POST["type"]=="Total") {
   array_push($members2,new Member_total("-","Всего"));
   $members2[count($members2)-1]->total=$summ;
   $members2[count($members2)-1]->cashback="Avr spend: ".$one;
+  $members2[count($members2)-1]->payed="Unpayed: ".$summ-$total_payed;
   // array_push($members2,new Purchase("-","Всего", "-", "-", $sum, "-"));
   echo json_encode($members2, JSON_UNESCAPED_UNICODE);
 }
