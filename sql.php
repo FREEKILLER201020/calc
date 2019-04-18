@@ -434,7 +434,7 @@ if ($_POST["type"]=="Total") {
       }
     }
     foreach ($array as $arr) {
-      if (($member->id==$arr->member_id)&&($idd->id==$arr->event_id)){
+      if (($member->id==$arr->member_id)&&($idd==$arr->event_id)){
         $text="<input type=\"text\" value=\"$arr->payed\" id=\"pay_".$idd."_".$member->id."\">";
         $button="<input type=\"button\" value=\"Pay\" onclick=\"Pay($idd,$member->id)\">";
         // $member->payed=$arr->payed;
