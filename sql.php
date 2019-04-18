@@ -452,7 +452,8 @@ if ($_POST["type"]=="Total") {
   array_push($members2,new Member_total("-","Всего"));
   $members2[count($members2)-1]->total=$summ;
   $members2[count($members2)-1]->cashback="Avr spend: ".$one;
-  $members2[count($members2)-1]->payed="Unpayed: ".$summ-$total_payed;
+  $rt=$summ-$total_payed;
+  $members2[count($members2)-1]->payed="Unpayed: ".$rt;
   // array_push($members2,new Purchase("-","Всего", "-", "-", $sum, "-"));
   echo json_encode($members2, JSON_UNESCAPED_UNICODE);
 }
